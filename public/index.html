@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Uygulaması - Test & Sınav Sistemi</title>
+    <meta name="description" content="Modern quiz ve test uygulaması ile bilgilerinizi test edin, arkadaşlarınızla yarışın!">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- LOGIN SCREEN -->
+        <div id="loginScreen" class="card">
+            <div class="header">
+                <div class="logo">🎯</div>
+                <h1>Quiz Uygulaması</h1>
+                <p class="subtitle">Bilgini test et, sıralamada yüksel!</p>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchLoginTab('user')">👤 Kullanıcı Girişi</button>
+                <button class="tab" onclick="switchLoginTab('admin')">👨‍💼 Admin Girişi</button>
+            </div>
+
+            <!-- USER LOGIN -->
+            <div id="userLoginForm" class="tab-content active">
+                <div class="form-group">
+                    <label for="firstName">İsim</label>
+                    <input type="text" id="firstName" placeholder="İsminizi girin">
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Soyisim</label>
+                    <input type="text" id="lastName" placeholder="Soyisminizi girin">
+                </div>
+                <button class="btn btn-primary btn-block" onclick="userLogin()">
+                    🚀 Teste Başla
+                </button>
+            </div>
+
+            <!-- ADMIN LOGIN -->
+            <div id="adminLoginForm" class="tab-content">
+                <div class="form-group">
+                    <label for="adminUsername">Kullanıcı Adı</label>
+                    <input type="text" id="adminUsername" placeholder="Admin kullanıcı adı">
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">Şifre</label>
+                    <input type="password" id="adminPassword" placeholder="Admin şifresi">
+                </div>
+                <button class="btn btn-primary btn-block" onclick="adminLogin()">
+                    🔐 Admin Girişi
+                </button>
+            </div>
+        </div>
+
+        <!-- USER DASHBOARD -->
+        <div id="userDashboard" class="card hidden">
+            <button class="btn btn-secondary logout-btn" onclick="logout()">⬅ Çıkış</button>
+            
+            <div class="header">
+                <div class="logo">🎯</div>
+                <h1 id="welcomeMessage">Hoş Geldin!</h1>
+                <p class="subtitle">Sorulara cevap vererek puan kazan</p>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchUserTab('quiz')">📝 Test</button>
+                <button class="tab" onclick="switchUserTab('results')">📊 Sonuçlarım</button>
+                <button class="tab" onclick="switchUserTab('leaderboard')">🏆 Sıralama</button>
+            </div>
+
+            <!-- QUIZ TAB -->
+            <div id="quizTab" class="tab-content active">
+                <div id="quizContainer"></div>
+            </div>
+
+            <!-- RESULTS TAB -->
+            <div id="resultsTab" class="tab-content">
+                <div id="userResults" class="stats-grid"></div>
+            </div>
+
+            <!-- LEADERBOARD TAB -->
+            <div id="leaderboardTab" class="tab-content">
+                <h2 style="margin-bottom: 20px;">🏆 En İyi 10</h2>
+                <div id="leaderboardList" class="leaderboard"></div>
+            </div>
+        </div>
+
+        <!-- ADMIN DASHBOARD -->
+        <div id="adminDashboard" class="card hidden">
+            <button class="btn btn-secondary logout-btn" onclick="logout()">⬅ Çıkış</button>
+            
+            <div class="header">
+                <div class="logo">👨‍💼</div>
+                <h1>Admin Paneli</h1>
+                <p class="subtitle">Quiz yönetim sistemi</p>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchAdminTab('questions')">📝 Sorular</button>
+                <button class="tab" onclick="switchAdminTab('users')">👥 Kullanıcılar</button>
+                <button class="tab" onclick="switchAdminTab('leaderboard')">🏆 Sıralama</button>
+            </div>
+
+            <!-- QUESTIONS TAB -->
+            <div id="adminQuestionsTab" class="tab-content active">
+                <h2 style="margin-bottom: 20px;">➕ Yeni Soru Ekle</h2>
+                
+                <div class="form-group">
+                    <label for="questionText">Soru</label>
+                    <textarea id="questionText" placeholder="Soruyu buraya yazın"></textarea>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="optionA">A) Şık</label>
+                        <input type="text" id="optionA" placeholder="A şıkkı">
+                    </div>
+                    <div class="form-group">
+                        <label for="optionB">B) Şık</label>
+                        <input type="text" id="optionB" placeholder="B şıkkı">
+                    </div>
+                    <div class="form-group">
+                        <label for="optionC">C) Şık</label>
+                        <input type="text" id="optionC" placeholder="C şıkkı">
+                    </div>
+                    <div class="form-group">
+                        <label for="optionD">D) Şık</label>
+                        <input type="text" id="optionD" placeholder="D şıkkı">
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="correctAnswer">Doğru Cevap</label>
+                        <select id="correctAnswer">
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="points">Puan</label>
+                        <input type="number" id="points" value="10" min="1">
+                    </div>
+                </div>
+
+                <button class="btn btn-success btn-block" onclick="addQuestion()">
+                    ✅ Soruyu Ekle
+                </button>
+
+                <hr style="margin: 40px 0; border: none; border-top: 2px solid var(--gray-light);">
+
+                <h2 style="margin-bottom: 20px;">📚 Mevcut Sorular</h2>
+                <div id="questionsList"></div>
+            </div>
+
+            <!-- USERS TAB -->
+            <div id="adminUsersTab" class="tab-content">
+                <h2 style="margin-bottom: 20px;">👥 Katılımcılar</h2>
+                <div id="usersList"></div>
+            </div>
+
+            <!-- ADMIN LEADERBOARD TAB -->
+            <div id="adminLeaderboardTab" class="tab-content">
+                <h2 style="margin-bottom: 20px;">🏆 Sıralama Tablosu</h2>
+                <div id="adminLeaderboardList" class="leaderboard"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
