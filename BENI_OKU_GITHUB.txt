@@ -1,0 +1,58 @@
+========================================
+  GITHUB'A YÜKLEME TALİMATLARI
+========================================
+
+✅ YAPILDI:
+- Git kuruldu
+- Repository başlatıldı
+- İlk commit yapıldı
+- Branch main olarak ayarlandı
+
+📝 ŞİMDİ YAPMANIZ GEREKENLER:
+
+1. GitHub'da Yeni Repository Oluşturun:
+   - https://github.com/new adresine gidin
+   - Repository name: quiz-app
+   - Description: Modern Quiz Uygulaması
+   - Public seçin
+   - "Create repository" tıklayın
+
+2. Aşağıdaki Komutu Çalıştırın:
+   
+   PowerShell'i açın ve quiz-app klasöründe:
+   
+   & "C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/KULLANICI_ADINIZ/quiz-app.git
+   
+   (KULLANICI_ADINIZ yerine kendi GitHub kullanıcı adınızı yazın)
+
+3. GitHub'a Yükleyin:
+   
+   & "C:\Program Files\Git\bin\git.exe" push -u origin main
+
+4. GitHub Kullanıcı Adı ve Şifre/Token İsteyecek:
+   - Kullanıcı adınızı girin
+   - Şifre yerine Personal Access Token kullanın
+   
+   Token oluşturmak için:
+   - GitHub → Settings → Developer settings
+   - Personal access tokens → Generate new token
+   - Scope: "repo" seçin
+   - Token'ı kopyalayın ve şifre yerine kullanın
+
+========================================
+
+VEYA DAHA KOLAY:
+
+GitHub Desktop kullanın:
+1. GitHub Desktop'ı açın
+2. File → Add Local Repository
+3. C:\Users\pcx\Desktop\python\quiz-app seçin
+4. "Publish repository" tıklayın
+5. TAMAM!
+
+========================================
+
+YARDIM:
+Sorun mu var? GITHUB_DESKTOP_REHBER.md dosyasını açın.
+
+========================================
