@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Çöz</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Giriş Ekranı -->
+        <div id="startScreen" class="card">
+            <header>
+                <h1><i class="fas fa-rocket"></i> Quiz'e Başla</h1>
+            </header>
+            <div class="form-group">
+                <label>Quiz Kodu</label>
+                <input type="text" id="quizCodeInput" readonly disabled>
+            </div>
+            <div class="form-group">
+                <label>Adınız Soyadınız</label>
+                <input type="text" id="studentName" placeholder="Örn: Ahmet Yılmaz">
+            </div>
+            <button onclick="startQuiz()" class="btn primary btn-block">Başla</button>
+        </div>
+
+        <!-- Quiz Ekranı -->
+        <div id="quizScreen" class="container hidden">
+            <header>
+                <h1 id="quizTitle">Quiz</h1>
+                <p id="quizDesc"></p>
+            </header>
+
+            <div id="questionsContainer">
+                <!-- Sorular buraya -->
+            </div>
+
+            <button onclick="submitQuiz()" class="btn success btn-block" style="margin-top: 20px;">Testi Bitir</button>
+        </div>
+
+        <!-- Sonuç Ekranı -->
+        <div id="resultScreen" class="card hidden" style="text-align: center;">
+            <div style="font-size: 60px; margin-bottom: 20px;">🏆</div>
+            <h2>Test Tamamlandı!</h2>
+            <div class="stat-card" style="margin: 20px 0;">
+                <div class="stat-value" id="finalScore">0</div>
+                <div class="stat-label">Puan</div>
+            </div>
+            <p id="resultDetails"></p>
+            <button onclick="window.location.href='index.html'" class="btn secondary">Ana Sayfaya Dön</button>
+        </div>
+    </div>
+
+    <script src="quiz.js"></script>
+</body>
+
+</html>
