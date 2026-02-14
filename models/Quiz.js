@@ -1,20 +1,18 @@
 const mongoose = require('mongoose');
 
 const QuestionSchema = new mongoose.Schema({
-    text: { type: String, required: true },
-    options: {
-        a: { type: String, required: true },
-        b: { type: String, required: true },
-        c: { type: String, required: true },
-        d: { type: String, required: true }
-    },
-    correct_answer: { type: String, required: true, enum: ['a', 'b', 'c', 'd'] },
+    question_text: { type: String, required: true },
+    option_a: { type: String, required: true },
+    option_b: { type: String, required: true },
+    option_c: { type: String, required: true },
+    option_d: { type: String, required: true },
+    correct_answer: { type: String, required: true, enum: ['A', 'B', 'C', 'D'] },
     points: { type: Number, default: 10 }
 });
 
 const QuizSchema = new mongoose.Schema({
-    id: { type: String, required: true, unique: true }, // 6-digit unique code
-    creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    quiz_code: { type: String, required: true, unique: true },
+    creator_id: { type: String, required: true },
     title: { type: String, required: true },
     description: { type: String },
     questions: [QuestionSchema],

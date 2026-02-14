@@ -18,37 +18,61 @@
             </div>
 
             <div class="tabs">
-                <button class="tab active" onclick="switchLoginTab('user')">👤 Kullanıcı Girişi</button>
-                <button class="tab" onclick="switchLoginTab('admin')">👨‍💼 Admin Girişi</button>
+                <button class="tab active" onclick="switchLoginTab('login')">🔐 Giriş Yap</button>
+                <button class="tab" onclick="switchLoginTab('register')">📝 Kayıt Ol</button>
+                <button class="tab" onclick="switchLoginTab('join')">🎯 Quiz'e Katıl</button>
             </div>
 
-            <!-- USER LOGIN -->
-            <div id="userLoginForm" class="tab-content active">
+            <!-- LOGIN FORM -->
+            <div id="loginForm" class="tab-content active">
                 <div class="form-group">
-                    <label for="firstName">İsim</label>
-                    <input type="text" id="firstName" placeholder="İsminizi girin">
+                    <label for="loginUsername">Kullanıcı Adı</label>
+                    <input type="text" id="loginUsername" placeholder="Kullanıcı adınız">
                 </div>
                 <div class="form-group">
-                    <label for="lastName">Soyisim</label>
-                    <input type="text" id="lastName" placeholder="Soyisminizi girin">
+                    <label for="loginPassword">Şifre</label>
+                    <input type="password" id="loginPassword" placeholder="Şifreniz">
                 </div>
                 <button class="btn btn-primary btn-block" onclick="userLogin()">
-                    🚀 Teste Başla
+                    🚀 Giriş Yap
                 </button>
             </div>
 
-            <!-- ADMIN LOGIN -->
-            <div id="adminLoginForm" class="tab-content">
+            <!-- REGISTER FORM -->
+            <div id="registerForm" class="tab-content">
                 <div class="form-group">
-                    <label for="adminUsername">Kullanıcı Adı</label>
-                    <input type="text" id="adminUsername" placeholder="Admin kullanıcı adı">
+                    <label for="regFirstName">İsim</label>
+                    <input type="text" id="regFirstName" placeholder="İsminiz">
                 </div>
                 <div class="form-group">
-                    <label for="adminPassword">Şifre</label>
-                    <input type="password" id="adminPassword" placeholder="Admin şifresi">
+                    <label for="regLastName">Soyisim</label>
+                    <input type="text" id="regLastName" placeholder="Soyisminiz">
                 </div>
-                <button class="btn btn-primary btn-block" onclick="adminLogin()">
-                    🔐 Admin Girişi
+                <div class="form-group">
+                    <label for="regUsername">Kullanıcı Adı</label>
+                    <input type="text" id="regUsername" placeholder="Kullanıcı adı seçin">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Şifre</label>
+                    <input type="password" id="regPassword" placeholder="Şifre oluşturun">
+                </div>
+                <button class="btn btn-success btn-block" onclick="userRegister()">
+                    ✅ Kayıt Ol
+                </button>
+            </div>
+
+            <!-- JOIN QUIZ FORM -->
+            <div id="joinQuizForm" class="tab-content">
+                <div class="form-group">
+                    <label for="participantName">İsminiz</label>
+                    <input type="text" id="participantName" placeholder="İsim Soyisim">
+                </div>
+                <div class="form-group">
+                    <label for="quizCode">Quiz Kodu</label>
+                    <input type="text" id="quizCode" placeholder="6 haneli kod" maxlength="6" style="text-transform: uppercase;">
+                </div>
+                <button class="btn btn-primary btn-block" onclick="joinQuiz()">
+                    🎯 Quiz'e Katıl
                 </button>
             </div>
         </div>
@@ -60,33 +84,153 @@
             <div class="header">
                 <div class="logo">🎯</div>
                 <h1 id="welcomeMessage">Hoş Geldin!</h1>
-                <p class="subtitle">Sorulara cevap vererek puan kazan</p>
+                <p class="subtitle">Kendi quiz'ini oluştur veya başkalarının quiz'lerine katıl</p>
             </div>
 
             <div class="tabs">
-                <button class="tab active" onclick="switchUserTab('quiz')">📝 Test</button>
+                <button class="tab active" onclick="switchUserTab('myquizzes')">📚 Quiz'lerim</button>
+                <button class="tab" onclick="switchUserTab('create')">➕ Yeni Quiz</button>
                 <button class="tab" onclick="switchUserTab('results')">📊 Sonuçlarım</button>
-                <button class="tab" onclick="switchUserTab('leaderboard')">🏆 Sıralama</button>
             </div>
 
-            <!-- QUIZ TAB -->
-            <div id="quizTab" class="tab-content active">
-                <div id="quizContainer"></div>
+            <!-- MY QUIZZES TAB -->
+            <div id="myQuizzesTab" class="tab-content active">
+                <h2 style="margin-bottom: 20px;">📚 Oluşturduğum Quiz'ler</h2>
+                <div id="myQuizzesList"></div>
+            </div>
+
+            <!-- CREATE QUIZ TAB -->
+            <div id="createQuizTab" class="tab-content">
+                <h2 style="margin-bottom: 20px;">➕ Yeni Quiz Oluştur</h2>
+                
+                <div class="form-group">
+                    <label for="quizTitle">Quiz Başlığı</label>
+                    <input type="text" id="quizTitle" placeholder="Örn: Genel Kültür Testi">
+                </div>
+
+                <div class="form-group">
+                    <label for="quizDescription">Açıklama</label>
+                    <textarea id="quizDescription" placeholder="Quiz hakkında kısa açıklama"></textarea>
+                </div>
+
+                <button class="btn btn-success btn-block" onclick="createQuiz()">
+                    ✅ Quiz Oluştur
+                </button>
+
+                <div id="quizCreatedMessage" class="hidden" style="margin-top: 20px;"></div>
             </div>
 
             <!-- RESULTS TAB -->
             <div id="resultsTab" class="tab-content">
+                <h2 style="margin-bottom: 20px;">📊 Katıldığım Quiz'ler</h2>
                 <div id="userResults" class="stats-grid"></div>
-            </div>
-
-            <!-- LEADERBOARD TAB -->
-            <div id="leaderboardTab" class="tab-content">
-                <h2 style="margin-bottom: 20px;">🏆 En İyi 10</h2>
-                <div id="leaderboardList" class="leaderboard"></div>
             </div>
         </div>
 
-        <!-- ADMIN DASHBOARD -->
+        <!-- QUIZ DETAIL SCREEN -->
+        <div id="quizDetailScreen" class="card hidden">
+            <button class="btn btn-secondary logout-btn" onclick="backToMyQuizzes()">⬅ Geri</button>
+            
+            <div class="header">
+                <div class="logo">📝</div>
+                <h1 id="quizDetailTitle">Quiz Detayı</h1>
+                <p class="subtitle" id="quizDetailDescription"></p>
+                <div id="quizCodeDisplay" style="margin-top: 15px;"></div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchQuizDetailTab('questions')">📝 Sorular</button>
+                <button class="tab" onclick="switchQuizDetailTab('participants')">👥 Katılımcılar</button>
+                <button class="tab" onclick="switchQuizDetailTab('leaderboard')">🏆 Sıralama</button>
+            </div>
+
+            <!-- QUESTIONS TAB -->
+            <div id="quizQuestionsTab" class="tab-content active">
+                <h2 style="margin-bottom: 20px;">➕ Yeni Soru Ekle</h2>
+                
+                <div class="form-group">
+                    <label for="questionText">Soru</label>
+                    <textarea id="questionText" placeholder="Soruyu buraya yazın"></textarea>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="optionA">A) Şık</label>
+                        <input type="text" id="optionA" placeholder="A şıkkı">
+                    </div>
+                    <div class="form-group">
+                        <label for="optionB">B) Şık</label>
+                        <input type="text" id="optionB" placeholder="B şıkkı">
+                    </div>
+                    <div class="form-group">
+                        <label for="optionC">C) Şık</label>
+                        <input type="text" id="optionC" placeholder="C şıkkı">
+                    </div>
+                    <div class="form-group">
+                        <label for="optionD">D) Şık</label>
+                        <input type="text" id="optionD" placeholder="D şıkkı">
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="correctAnswer">Doğru Cevap</label>
+                        <select id="correctAnswer">
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="points">Puan</label>
+                        <input type="number" id="points" value="10" min="1">
+                    </div>
+                </div>
+
+                <button class="btn btn-success btn-block" onclick="addQuestionToQuiz()">
+                    ✅ Soruyu Ekle
+                </button>
+
+                <hr style="margin: 40px 0; border: none; border-top: 2px solid var(--gray-light);">
+
+                <h2 style="margin-bottom: 20px;">📚 Mevcut Sorular</h2>
+                <div id="quizQuestionsList"></div>
+            </div>
+
+            <!-- PARTICIPANTS TAB -->
+            <div id="quizParticipantsTab" class="tab-content">
+                <h2 style="margin-bottom: 20px;">👥 Katılımcılar</h2>
+                <div id="participantsList"></div>
+            </div>
+
+            <!-- LEADERBOARD TAB -->
+            <div id="quizLeaderboardTab" class="tab-content">
+                <h2 style="margin-bottom: 20px;">🏆 Sıralama</h2>
+                <div id="quizLeaderboardList"></div>
+            </div>
+        </div>
+
+        <!-- TAKE QUIZ SCREEN (for participants) -->
+        <div id="takeQuizScreen" class="card hidden">
+            <button class="btn btn-secondary logout-btn" onclick="exitQuiz()">⬅ Çıkış</button>
+            
+            <div class="header">
+                <div class="logo">🎯</div>
+                <h1 id="takeQuizTitle">Quiz</h1>
+                <p class="subtitle" id="takeQuizDescription"></p>
+                <div id="participantInfo" style="margin-top: 10px;"></div>
+            </div>
+
+            <div id="quizQuestionsContainer"></div>
+            
+            <div id="quizResultSummary" class="hidden" style="margin-top: 30px;">
+                <h2>🎉 Quiz Tamamlandı!</h2>
+                <div id="finalScore" class="stats-grid"></div>
+            </div>
+        </div>
+
+        <!-- ADMIN DASHBOARD (old one, keep for backward compatibility) -->
         <div id="adminDashboard" class="card hidden">
             <button class="btn btn-secondary logout-btn" onclick="logout()">⬅ Çıkış</button>
             

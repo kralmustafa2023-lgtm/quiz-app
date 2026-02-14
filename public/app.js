@@ -1,63 +1,34 @@
 // Global değişkenler
 let currentUser = null;
-let isAdmin = false;
-let questions = [];
-let userAnswers = {};
+let currentQuiz = null;
+let currentParticipant = null;
 
-// ==================== LOGIN FUNCTIONS ====================
+// ==================== LOGIN/REGISTER FUNCTIONS ====================
 
 function switchLoginTab(tab) {
-    const userForm = document.getElementById('userLoginForm');
-    const adminForm = document.getElementById('adminLoginForm');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const joinQuizForm = document.getElementById('joinQuizForm');
     const tabs = document.querySelectorAll('#loginScreen .tab');
 
     tabs.forEach(t => t.classList.remove('active'));
+    [loginForm, registerForm, joinQuizForm].forEach(f => f.classList.remove('active'));
 
-    if (tab === 'user') {
-        userForm.classList.add('active');
-        adminForm.classList.remove('active');
+    if (tab === 'login') {
+        loginForm.classList.add('active');
         tabs[0].classList.add('active');
-    } else {
-        adminForm.classList.add('active');
-        userForm.classList.remove('active');
+    } else if (tab === 'register') {
+        registerForm.classList.add('active');
         tabs[1].classList.add('active');
+    } else if (tab === 'join') {
+        joinQuizForm.classList.add('active');
+        tabs[2].classList.add('active');
     }
 }
 
 async function userLogin() {
-    const firstName = document.getElementById('firstName').value.trim();
-    const lastName = document.getElementById('lastName').value.trim();
-
-    if (!firstName || !lastName) {
-        alert('⚠️ Lütfen isim ve soyisim girin!');
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/user/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ first_name: firstName, last_name: lastName })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            currentUser = data.user;
-            isAdmin = false;
-            showUserDashboard();
-        } else {
-            alert('❌ Giriş başarısız!');
-        }
-    } catch (error) {
-        console.error('Login error:', error);
-        alert('❌ Bir hata oluştu!');
-    }
-}
-
-async function adminLogin() {
-    const username = document.getElementById('adminUsername').value.trim();
-    const password = document.getElementById('adminPassword').value.trim();
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
 
     if (!username || !password) {
         alert('⚠️ Lütfen kullanıcı adı ve şifre girin!');
@@ -65,7 +36,7 @@ async function adminLogin() {
     }
 
     try {
-        const response = await fetch('/api/admin/login', {
+        const response = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
@@ -74,31 +45,89 @@ async function adminLogin() {
         const data = await response.json();
 
         if (data.success) {
-            isAdmin = true;
-            showAdminDashboard();
+            currentUser = data.user;
+            showUserDashboard();
         } else {
             alert('❌ ' + data.message);
         }
     } catch (error) {
-        console.error('Admin login error:', error);
+        console.error('Login error:', error);
         alert('❌ Bir hata oluştu!');
+    }
+}
+
+async function userRegister() {
+    const firstName = document.getElementById('regFirstName').value.trim();
+    const lastName = document.getElementById('regLastName').value.trim();
+    const username = document.getElementById('regUsername').value.trim();
+    const password = document.getElementById('regPassword').value.trim();
+
+    if (!firstName || !lastName || !username || !password) {
+        alert('⚠️ Lütfen tüm alanları doldurun!');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ first_name: firstName, last_name: lastName, username, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('✅ Kayıt başarılı! Şimdi giriş yapabilirsiniz.');
+            switchLoginTab('login');
+            document.getElementById('loginUsername').value = username;
+        } else {
+            alert('❌ ' + data.message);
+        }
+    } catch (error) {
+        console.error('Register error:', error);
+        alert('❌ Bir hata oluştu!');
+    }
+}
+
+async function joinQuiz() {
+    const participantName = document.getElementById('participantName').value.trim();
+    const quizCode = document.getElementById('quizCode').value.trim().toUpperCase();
+
+    if (!participantName || !quizCode) {
+        alert('⚠️ Lütfen isminizi ve quiz kodunu girin!');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/public/quiz/${quizCode}`);
+        const data = await response.json();
+
+        if (data.success) {
+            currentQuiz = data.quiz;
+            currentParticipant = { name: participantName, quiz_code: quizCode };
+            showTakeQuizScreen();
+        } else {
+            alert('❌ ' + data.message);
+        }
+    } catch (error) {
+        console.error('Join quiz error:', error);
+        alert('❌ Quiz bulunamadı!');
     }
 }
 
 function logout() {
     currentUser = null;
-    isAdmin = false;
-    userAnswers = {};
+    currentQuiz = null;
+    currentParticipant = null;
 
     document.getElementById('loginScreen').classList.remove('hidden');
     document.getElementById('userDashboard').classList.add('hidden');
-    document.getElementById('adminDashboard').classList.add('hidden');
+    document.getElementById('quizDetailScreen').classList.add('hidden');
+    document.getElementById('takeQuizScreen').classList.add('hidden');
 
-    // Formu temizle
-    document.getElementById('firstName').value = '';
-    document.getElementById('lastName').value = '';
-    document.getElementById('adminUsername').value = '';
-    document.getElementById('adminPassword').value = '';
+    // Clear forms
+    document.getElementById('loginUsername').value = '';
+    document.getElementById('loginPassword').value = '';
 }
 
 // ==================== USER DASHBOARD ====================
@@ -110,9 +139,7 @@ async function showUserDashboard() {
     document.getElementById('welcomeMessage').textContent =
         `Hoş Geldin, ${currentUser.first_name} ${currentUser.last_name}! 👋`;
 
-    await loadQuiz();
-    await loadUserResults();
-    await loadLeaderboard();
+    await loadMyQuizzes();
 }
 
 function switchUserTab(tab) {
@@ -122,206 +149,192 @@ function switchUserTab(tab) {
     tabs.forEach(t => t.classList.remove('active'));
     contents.forEach(c => c.classList.remove('active'));
 
-    if (tab === 'quiz') {
+    if (tab === 'myquizzes') {
         tabs[0].classList.add('active');
-        document.getElementById('quizTab').classList.add('active');
-        loadQuiz();
-    } else if (tab === 'results') {
+        document.getElementById('myQuizzesTab').classList.add('active');
+        loadMyQuizzes();
+    } else if (tab === 'create') {
         tabs[1].classList.add('active');
-        document.getElementById('resultsTab').classList.add('active');
-        loadUserResults();
-    } else if (tab === 'leaderboard') {
+        document.getElementById('createQuizTab').classList.add('active');
+    } else if (tab === 'results') {
         tabs[2].classList.add('active');
-        document.getElementById('leaderboardTab').classList.add('active');
-        loadLeaderboard();
+        document.getElementById('resultsTab').classList.add('active');
+        loadUserParticipations();
     }
 }
 
-async function loadQuiz() {
+async function loadMyQuizzes() {
     try {
-        const response = await fetch('/api/questions');
-        questions = await response.json();
+        const response = await fetch(`/api/creator/${currentUser.id}/quizzes`);
+        const quizzes = await response.json();
 
-        const container = document.getElementById('quizContainer');
+        const container = document.getElementById('myQuizzesList');
 
-        if (questions.length === 0) {
-            container.innerHTML = '<div class="alert alert-error">Henüz soru eklenmemiş! 📝</div>';
+        if (quizzes.length === 0) {
+            container.innerHTML = '<div class="alert alert-error">Henüz quiz oluşturmadınız! ➕ Yeni Quiz sekmesinden oluşturabilirsiniz.</div>';
             return;
         }
 
-        container.innerHTML = questions.map((q, index) => `
-            <div class="question-card">
+        container.innerHTML = quizzes.map(quiz => `
+            <div class="question-card" style="cursor: pointer;" onclick="openQuizDetail('${quiz.quiz_code}')">
                 <div class="question-header">
-                    <div class="question-text">${index + 1}. ${q.question_text}</div>
-                    <div class="question-points">🎯 ${q.points} puan</div>
-                </div>
-                <div class="options">
-                    ${['A', 'B', 'C', 'D'].map(option => `
-                        <div class="option" onclick="selectAnswer(${q.id}, '${option}', this)">
-                            <div class="option-label">${option}</div>
-                            <div>${q['option_' + option.toLowerCase()]}</div>
+                    <div>
+                        <div class="question-text">${quiz.title}</div>
+                        <p style="margin: 8px 0; color: var(--gray-dark);">${quiz.description || ''}</p>
+                        <div style="display: flex; gap: 15px; margin-top: 10px;">
+                            <span>📝 ${quiz.question_count || 0} soru</span>
+                            <span>👥 ${quiz.participant_count || 0} katılımcı</span>
+                            <span>🔑 Kod: <strong>${quiz.quiz_code}</strong></span>
                         </div>
-                    `).join('')}
+                    </div>
+                    <div>
+                        <span class="badge ${quiz.is_active ? 'badge-success' : 'badge-secondary'}">
+                            ${quiz.is_active ? '✅ Aktif' : '🔒 Pasif'}
+                        </span>
+                    </div>
                 </div>
             </div>
         `).join('');
-
     } catch (error) {
-        console.error('Load quiz error:', error);
+        console.error('Load my quizzes error:', error);
     }
 }
 
-async function selectAnswer(questionId, answer, element) {
-    const questionCard = element.closest('.question-card');
-    const options = questionCard.querySelectorAll('.option');
+async function createQuiz() {
+    const title = document.getElementById('quizTitle').value.trim();
+    const description = document.getElementById('quizDescription').value.trim();
 
-    // Önceki seçimi kaldır
-    options.forEach(opt => opt.classList.remove('selected'));
-
-    // Yeni seçimi işaretle
-    element.classList.add('selected');
+    if (!title) {
+        alert('⚠️ Lütfen quiz başlığı girin!');
+        return;
+    }
 
     try {
-        const response = await fetch('/api/submit-answer', {
+        const response = await fetch('/api/creator/quizzes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                user_id: currentUser.id,
-                question_id: questionId,
-                user_answer: answer
+                creator_id: currentUser.id,
+                title,
+                description
             })
         });
 
         const data = await response.json();
 
         if (data.success) {
-            // Doğru/yanlış göster
-            options.forEach(opt => {
-                const optLabel = opt.querySelector('.option-label').textContent;
-                if (optLabel === data.correct_answer) {
-                    opt.classList.add('correct');
-                }
-                if (optLabel === answer && !data.is_correct) {
-                    opt.classList.add('incorrect');
-                }
-                opt.style.pointerEvents = 'none';
-            });
+            const messageDiv = document.getElementById('quizCreatedMessage');
+            messageDiv.className = 'alert alert-success';
+            messageDiv.innerHTML = `
+                ✅ Quiz oluşturuldu!<br>
+                <strong>Quiz Kodu: ${data.quiz.quiz_code}</strong><br>
+                Bu kodu arkadaşlarınızla paylaşın!
+            `;
+            messageDiv.classList.remove('hidden');
 
-            // Puan mesajı göster
-            if (data.is_correct) {
-                showMessage(questionCard, `✅ Doğru! +${data.points_earned} puan`, 'success');
-            } else {
-                showMessage(questionCard, `❌ Yanlış! Doğru cevap: ${data.correct_answer}`, 'error');
-            }
+            // Clear form
+            document.getElementById('quizTitle').value = '';
+            document.getElementById('quizDescription').value = '';
 
-            // Sonuçları güncelle
-            setTimeout(() => loadUserResults(), 1000);
+            // Reload quizzes
+            setTimeout(() => {
+                switchUserTab('myquizzes');
+                messageDiv.classList.add('hidden');
+            }, 3000);
+        } else {
+            alert('❌ Quiz oluşturulamadı!');
         }
     } catch (error) {
-        console.error('Submit answer error:', error);
+        console.error('Create quiz error:', error);
+        alert('❌ Bir hata oluştu!');
     }
 }
 
-function showMessage(container, message, type) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type}`;
-    alertDiv.textContent = message;
-    alertDiv.style.marginTop = '12px';
-
-    container.appendChild(alertDiv);
-
-    setTimeout(() => alertDiv.remove(), 3000);
-}
-
-async function loadUserResults() {
+async function loadUserParticipations() {
     try {
-        const response = await fetch(`/api/user/${currentUser.id}/results`);
-        const results = await response.json();
+        const response = await fetch(`/api/user/${currentUser.id}/participations`);
+        const participations = await response.json();
 
         const container = document.getElementById('userResults');
-        container.innerHTML = `
-            <div class="stat-card">
-                <div class="stat-value">🏆 ${results.total_points || 0}</div>
-                <div class="stat-label">Toplam Puanın</div>
-            </div>
-            <div class="stat-card success">
-                <div class="stat-value">✅ ${results.correct_answers || 0}</div>
-                <div class="stat-label">Doğru Cevap</div>
-            </div>
-            <div class="stat-card warning">
-                <div class="stat-value">📝 ${results.total_questions || 0}</div>
-                <div class="stat-label">Cevaplanan Soru</div>
-            </div>
-        `;
-    } catch (error) {
-        console.error('Load results error:', error);
-    }
-}
 
-async function loadLeaderboard() {
-    try {
-        const response = await fetch('/api/leaderboard');
-        const leaderboard = await response.json();
-
-        const container = document.getElementById('leaderboardList');
-
-        if (leaderboard.length === 0) {
-            container.innerHTML = '<div class="alert alert-error">Henüz kimse test çözmemiş! 🏆</div>';
+        if (participations.length === 0) {
+            container.innerHTML = '<div class="alert alert-error">Henüz hiçbir quiz\'e katılmadınız!</div>';
             return;
         }
 
-        container.innerHTML = leaderboard.map((user, index) => `
-            <div class="leaderboard-item">
-                <div class="rank">${index + 1}</div>
-                <div class="user-info">
-                    <div class="user-name">${user.first_name} ${user.last_name}</div>
-                    <div class="user-stats">
-                        ✅ ${user.correct_answers || 0} doğru · 
-                        📝 ${user.questions_answered || 0} soru
-                    </div>
-                </div>
-                <div class="user-points">${user.total_points || 0}</div>
+        container.innerHTML = participations.map(p => `
+            <div class="stat-card">
+                <div class="stat-value">${p.quiz_title}</div>
+                <div class="stat-label">🏆 ${p.score || 0} / ${p.max_score || 0} puan</div>
+                <div class="stat-label">✅ ${p.correct_answers || 0} doğru</div>
             </div>
         `).join('');
     } catch (error) {
-        console.error('Load leaderboard error:', error);
+        console.error('Load participations error:', error);
     }
 }
 
-// ==================== ADMIN DASHBOARD ====================
+// ==================== QUIZ DETAIL SCREEN ====================
 
-async function showAdminDashboard() {
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('adminDashboard').classList.remove('hidden');
+async function openQuizDetail(quizCode) {
+    try {
+        const response = await fetch(`/api/creator/quiz/${quizCode}`);
+        const data = await response.json();
 
-    await loadAdminQuestions();
-    await loadAdminUsers();
-    await loadAdminLeaderboard();
+        if (data.success) {
+            currentQuiz = data.quiz;
+            
+            document.getElementById('userDashboard').classList.add('hidden');
+            document.getElementById('quizDetailScreen').classList.remove('hidden');
+
+            document.getElementById('quizDetailTitle').textContent = currentQuiz.title;
+            document.getElementById('quizDetailDescription').textContent = currentQuiz.description || '';
+            document.getElementById('quizCodeDisplay').innerHTML = `
+                <div class="alert alert-success">
+                    🔑 Quiz Kodu: <strong style="font-size: 24px;">${currentQuiz.quiz_code}</strong>
+                    <br><small>Bu kodu arkadaşlarınızla paylaşın!</small>
+                </div>
+            `;
+
+            await loadQuizQuestions();
+            await loadQuizParticipants();
+            await loadQuizLeaderboard();
+        }
+    } catch (error) {
+        console.error('Open quiz detail error:', error);
+    }
 }
 
-function switchAdminTab(tab) {
-    const tabs = document.querySelectorAll('#adminDashboard .tab');
-    const contents = document.querySelectorAll('#adminDashboard .tab-content');
+function backToMyQuizzes() {
+    document.getElementById('quizDetailScreen').classList.add('hidden');
+    document.getElementById('userDashboard').classList.remove('hidden');
+    currentQuiz = null;
+    switchUserTab('myquizzes');
+}
+
+function switchQuizDetailTab(tab) {
+    const tabs = document.querySelectorAll('#quizDetailScreen .tab');
+    const contents = document.querySelectorAll('#quizDetailScreen .tab-content');
 
     tabs.forEach(t => t.classList.remove('active'));
     contents.forEach(c => c.classList.remove('active'));
 
     if (tab === 'questions') {
         tabs[0].classList.add('active');
-        document.getElementById('adminQuestionsTab').classList.add('active');
-        loadAdminQuestions();
-    } else if (tab === 'users') {
+        document.getElementById('quizQuestionsTab').classList.add('active');
+        loadQuizQuestions();
+    } else if (tab === 'participants') {
         tabs[1].classList.add('active');
-        document.getElementById('adminUsersTab').classList.add('active');
-        loadAdminUsers();
+        document.getElementById('quizParticipantsTab').classList.add('active');
+        loadQuizParticipants();
     } else if (tab === 'leaderboard') {
         tabs[2].classList.add('active');
-        document.getElementById('adminLeaderboardTab').classList.add('active');
-        loadAdminLeaderboard();
+        document.getElementById('quizLeaderboardTab').classList.add('active');
+        loadQuizLeaderboard();
     }
 }
 
-async function addQuestion() {
+async function addQuestionToQuiz() {
     const questionText = document.getElementById('questionText').value.trim();
     const optionA = document.getElementById('optionA').value.trim();
     const optionB = document.getElementById('optionB').value.trim();
@@ -336,7 +349,7 @@ async function addQuestion() {
     }
 
     try {
-        const response = await fetch('/api/admin/questions', {
+        const response = await fetch(`/api/creator/quiz/${currentQuiz.quiz_code}/questions`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -353,9 +366,9 @@ async function addQuestion() {
         const data = await response.json();
 
         if (data.success) {
-            alert('✅ Soru başarıyla eklendi!');
+            alert('✅ Soru eklendi!');
 
-            // Formu temizle
+            // Clear form
             document.getElementById('questionText').value = '';
             document.getElementById('optionA').value = '';
             document.getElementById('optionB').value = '';
@@ -363,7 +376,7 @@ async function addQuestion() {
             document.getElementById('optionD').value = '';
             document.getElementById('points').value = '10';
 
-            await loadAdminQuestions();
+            await loadQuizQuestions();
         } else {
             alert('❌ Soru eklenirken hata oluştu!');
         }
@@ -373,15 +386,15 @@ async function addQuestion() {
     }
 }
 
-async function loadAdminQuestions() {
+async function loadQuizQuestions() {
     try {
-        const response = await fetch('/api/admin/questions');
+        const response = await fetch(`/api/creator/quiz/${currentQuiz.quiz_code}/questions`);
         const questions = await response.json();
 
-        const container = document.getElementById('questionsList');
+        const container = document.getElementById('quizQuestionsList');
 
         if (questions.length === 0) {
-            container.innerHTML = '<div class="alert alert-error">Henüz soru eklenmemiş! 📝</div>';
+            container.innerHTML = '<div class="alert alert-error">Henüz soru eklenmemiş!</div>';
             return;
         }
 
@@ -391,7 +404,7 @@ async function loadAdminQuestions() {
                     <div class="question-text">${index + 1}. ${q.question_text}</div>
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <div class="question-points">🎯 ${q.points} puan</div>
-                        <button class="btn btn-danger" onclick="deleteQuestion(${q.id})" style="padding: 8px 16px;">
+                        <button class="btn btn-danger" onclick="deleteQuizQuestion('${q._id}')" style="padding: 8px 16px;">
                             🗑️
                         </button>
                     </div>
@@ -408,17 +421,17 @@ async function loadAdminQuestions() {
             </div>
         `).join('');
     } catch (error) {
-        console.error('Load admin questions error:', error);
+        console.error('Load quiz questions error:', error);
     }
 }
 
-async function deleteQuestion(id) {
+async function deleteQuizQuestion(questionId) {
     if (!confirm('Bu soruyu silmek istediğinize emin misiniz?')) {
         return;
     }
 
     try {
-        const response = await fetch(`/api/admin/questions/${id}`, {
+        const response = await fetch(`/api/creator/quiz/${currentQuiz.quiz_code}/questions/${questionId}`, {
             method: 'DELETE'
         });
 
@@ -426,7 +439,7 @@ async function deleteQuestion(id) {
 
         if (data.success) {
             alert('✅ Soru silindi!');
-            await loadAdminQuestions();
+            await loadQuizQuestions();
         } else {
             alert('❌ Soru silinirken hata oluştu!');
         }
@@ -436,15 +449,15 @@ async function deleteQuestion(id) {
     }
 }
 
-async function loadAdminUsers() {
+async function loadQuizParticipants() {
     try {
-        const response = await fetch('/api/admin/users');
-        const users = await response.json();
+        const response = await fetch(`/api/creator/quiz/${currentQuiz.quiz_code}/participants`);
+        const participants = await response.json();
 
-        const container = document.getElementById('usersList');
+        const container = document.getElementById('participantsList');
 
-        if (users.length === 0) {
-            container.innerHTML = '<div class="alert alert-error">Henüz kullanıcı yok! 👥</div>';
+        if (participants.length === 0) {
+            container.innerHTML = '<div class="alert alert-error">Henüz katılımcı yok!</div>';
             return;
         }
 
@@ -453,67 +466,193 @@ async function loadAdminUsers() {
                 <table>
                     <thead>
                         <tr>
-                            <th>İsim Soyisim</th>
-                            <th>Toplam Puan</th>
-                            <th>Cevaplanan Soru</th>
-                            <th>Doğru Cevap</th>
-                            <th>Başarı Oranı</th>
-                            <th>Katılım Tarihi</th>
+                            <th>Katılımcı</th>
+                            <th>Puan</th>
+                            <th>Doğru</th>
+                            <th>Yanlış</th>
+                            <th>Tarih</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${users.map(user => {
-            const successRate = user.questions_answered > 0
-                ? ((user.correct_answers / user.questions_answered) * 100).toFixed(0)
-                : 0;
-            return `
-                                <tr>
-                                    <td><strong>${user.first_name} ${user.last_name}</strong></td>
-                                    <td><span class="badge badge-primary">🏆 ${user.total_points || 0}</span></td>
-                                    <td>📝 ${user.questions_answered || 0}</td>
-                                    <td>✅ ${user.correct_answers || 0}</td>
-                                    <td><span class="badge badge-success">%${successRate}</span></td>
-                                    <td>${new Date(user.created_at).toLocaleDateString('tr-TR')}</td>
-                                </tr>
-                            `;
-        }).join('')}
+                        ${participants.map(p => `
+                            <tr>
+                                <td><strong>${p.participant_name}</strong></td>
+                                <td><span class="badge badge-primary">🏆 ${p.score || 0}</span></td>
+                                <td>✅ ${p.correct_answers || 0}</td>
+                                <td>❌ ${(p.total_questions || 0) - (p.correct_answers || 0)}</td>
+                                <td>${new Date(p.completed_at).toLocaleDateString('tr-TR')}</td>
+                            </tr>
+                        `).join('')}
                     </tbody>
                 </table>
             </div>
         `;
     } catch (error) {
-        console.error('Load admin users error:', error);
+        console.error('Load participants error:', error);
     }
 }
 
-async function loadAdminLeaderboard() {
+async function loadQuizLeaderboard() {
     try {
-        const response = await fetch('/api/leaderboard');
+        const response = await fetch(`/api/creator/quiz/${currentQuiz.quiz_code}/leaderboard`);
         const leaderboard = await response.json();
 
-        const container = document.getElementById('adminLeaderboardList');
+        const container = document.getElementById('quizLeaderboardList');
 
         if (leaderboard.length === 0) {
-            container.innerHTML = '<div class="alert alert-error">Henüz kimse test çözmemiş! 🏆</div>';
+            container.innerHTML = '<div class="alert alert-error">Henüz kimse quiz\'i tamamlamamış!</div>';
             return;
         }
 
-        container.innerHTML = leaderboard.map((user, index) => `
+        container.innerHTML = leaderboard.map((p, index) => `
             <div class="leaderboard-item">
                 <div class="rank">${index + 1}</div>
                 <div class="user-info">
-                    <div class="user-name">${user.first_name} ${user.last_name}</div>
+                    <div class="user-name">${p.participant_name}</div>
                     <div class="user-stats">
-                        ✅ ${user.correct_answers || 0} doğru · 
-                        📝 ${user.questions_answered || 0} soru
+                        ✅ ${p.correct_answers || 0} doğru · 
+                        ❌ ${(p.total_questions || 0) - (p.correct_answers || 0)} yanlış
                     </div>
                 </div>
-                <div class="user-points">${user.total_points || 0}</div>
+                <div class="user-points">${p.score || 0}</div>
             </div>
         `).join('');
     } catch (error) {
-        console.error('Load admin leaderboard error:', error);
+        console.error('Load leaderboard error:', error);
     }
+}
+
+// ==================== TAKE QUIZ SCREEN (for participants) ====================
+
+async function showTakeQuizScreen() {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('takeQuizScreen').classList.remove('hidden');
+
+    document.getElementById('takeQuizTitle').textContent = currentQuiz.title;
+    document.getElementById('takeQuizDescription').textContent = currentQuiz.description || '';
+    document.getElementById('participantInfo').innerHTML = `
+        <span class="badge badge-primary">👤 ${currentParticipant.name}</span>
+    `;
+
+    await loadQuizForParticipant();
+}
+
+async function loadQuizForParticipant() {
+    const container = document.getElementById('quizQuestionsContainer');
+
+    if (currentQuiz.questions.length === 0) {
+        container.innerHTML = '<div class="alert alert-error">Bu quiz\'de henüz soru yok!</div>';
+        return;
+    }
+
+    container.innerHTML = currentQuiz.questions.map((q, index) => `
+        <div class="question-card" data-question-id="${q._id}">
+            <div class="question-header">
+                <div class="question-text">${index + 1}. ${q.question_text}</div>
+                <div class="question-points">🎯 ${q.points} puan</div>
+            </div>
+            <div class="options">
+                ${['A', 'B', 'C', 'D'].map(option => `
+                    <div class="option" onclick="selectParticipantAnswer('${q._id}', '${option}', this)">
+                        <div class="option-label">${option}</div>
+                        <div>${q['option_' + option.toLowerCase()]}</div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="answer-feedback"></div>
+        </div>
+    `).join('');
+
+    container.innerHTML += `
+        <button class="btn btn-success btn-block" onclick="submitQuizAnswers()" style="margin-top: 30px;">
+            ✅ Quiz'i Tamamla
+        </button>
+    `;
+}
+
+const participantAnswers = {};
+
+function selectParticipantAnswer(questionId, answer, element) {
+    const questionCard = element.closest('.question-card');
+    const options = questionCard.querySelectorAll('.option');
+
+    options.forEach(opt => opt.classList.remove('selected'));
+    element.classList.add('selected');
+
+    participantAnswers[questionId] = answer;
+}
+
+async function submitQuizAnswers() {
+    const answeredCount = Object.keys(participantAnswers).length;
+    const totalQuestions = currentQuiz.questions.length;
+
+    if (answeredCount < totalQuestions) {
+        if (!confirm(`${totalQuestions - answeredCount} soru cevaplanmadı. Yine de göndermek istiyor musunuz?`)) {
+            return;
+        }
+    }
+
+    try {
+        const answers = Object.entries(participantAnswers).map(([question_id, answer]) => ({
+            question_id,
+            answer
+        }));
+
+        const response = await fetch(`/api/public/quiz/${currentQuiz.quiz_code}/submit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                participant_name: currentParticipant.name,
+                answers
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showQuizResults(data);
+        } else {
+            alert('❌ Quiz gönderilemedi!');
+        }
+    } catch (error) {
+        console.error('Submit quiz error:', error);
+        alert('❌ Bir hata oluştu!');
+    }
+}
+
+function showQuizResults(data) {
+    document.getElementById('quizQuestionsContainer').classList.add('hidden');
+    document.getElementById('quizResultSummary').classList.remove('hidden');
+
+    const percentage = ((data.score / data.max_score) * 100).toFixed(0);
+
+    document.getElementById('finalScore').innerHTML = `
+        <div class="stat-card success">
+            <div class="stat-value">🏆 ${data.score}</div>
+            <div class="stat-label">Toplam Puan</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">✅ ${data.correct_count}</div>
+            <div class="stat-label">Doğru Cevap</div>
+        </div>
+        <div class="stat-card warning">
+            <div class="stat-value">❌ ${data.wrong_count}</div>
+            <div class="stat-label">Yanlış Cevap</div>
+        </div>
+        <div class="stat-card ${percentage >= 70 ? 'success' : percentage >= 50 ? 'warning' : ''}">
+            <div class="stat-value">%${percentage}</div>
+            <div class="stat-label">Başarı Oranı</div>
+        </div>
+    `;
+}
+
+function exitQuiz() {
+    currentQuiz = null;
+    currentParticipant = null;
+    document.getElementById('takeQuizScreen').classList.add('hidden');
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('quizResultSummary').classList.add('hidden');
+    document.getElementById('quizQuestionsContainer').classList.remove('hidden');
 }
 
 // Sayfa yüklendiğinde
