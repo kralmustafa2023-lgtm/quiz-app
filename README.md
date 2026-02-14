@@ -1,6 +1,13 @@
 # 🎯 Quiz Uygulaması - Test & Sınav Sistemi
 
+![Node.js](https://img.shields.io/badge/Node.js-14+-green?style=flat-square&logo=node.js)
+![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+![Status](https://img.shields.io/badge/status-active-success?style=flat-square)
+![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red?style=flat-square)
+
 Modern, kullanıcı dostu quiz oluşturma ve paylaşma platformu. Kendi quiz'lerinizi oluşturun, arkadaşlarınızla paylaşın!
+
+**🌐 GitHub:** [https://github.com/kralmustafa2023-lgtm/quiz-app](https://github.com/kralmustafa2023-lgtm/quiz-app)
 
 ## ✨ Özellikler
 
@@ -194,23 +201,91 @@ LocalDB UTF-8 encoding kullanır. Sorun devam ederse dosyaları UTF-8 olarak kay
 
 ## 🤝 Katkıda Bulunma
 
-1. Fork yapın
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Commit yapın (`git commit -m 'Add amazing feature'`)
-4. Push yapın (`git push origin feature/amazing-feature`)
-5. Pull Request açın
+Katkılarınızı bekliyoruz! İşte nasıl katkıda bulunabilirsiniz:
+
+### Katkı Adımları
+
+1. **Fork yapın**
+   ```bash
+   # GitHub'da "Fork" butonuna tıklayın
+   ```
+
+2. **Feature branch oluşturun**
+   ```bash
+   git checkout -b feature/harika-ozellik
+   ```
+
+3. **Değişikliklerinizi commit edin**
+   ```bash
+   git commit -m 'Harika özellik eklendi'
+   ```
+
+4. **Branch'inizi push edin**
+   ```bash
+   git push origin feature/harika-ozellik
+   ```
+
+5. **Pull Request açın**
+   - GitHub'da repository'nize gidin
+   - "Pull Request" butonuna tıklayın
+   - Değişikliklerinizi açıklayın
+
+### Katkı Kuralları
+
+- ✅ Kod temiz ve okunabilir olmalı
+- ✅ Yeni özellikler dokümante edilmeli
+- ✅ Güvenlik önlemleri göz önünde bulundurulmalı
+- ✅ Türkçe veya İngilizce commit mesajları
+
+### Önerilen Geliştirmeler
+
+- [ ] JWT authentication
+- [ ] Email verification
+- [ ] Quiz kategorileri
+- [ ] Zamanlı quiz'ler
+- [ ] Soru bankası
+- [ ] İstatistik grafikleri
+- [ ] Dark mode
+- [ ] Çoklu dil desteği
 
 ## 📄 Lisans
 
-Bu proje ISC lisansı altında lisanslanmıştır.
+Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.
+
+**Bu ne anlama gelir?**
+- ✅ Ücretsiz kullanabilirsiniz
+- ✅ Değiştirebilirsiniz
+- ✅ Ticari projelerinizde kullanabilirsiniz
+- ✅ Dağıtabilirsiniz
+- ⚠️ Lisans metnini korumalısınız
 
 ## 👨‍💻 Geliştirici
 
-Quiz Uygulaması - 2026
+**Mustafa Kral** - [@kralmustafa2023-lgtm](https://github.com/kralmustafa2023-lgtm)
+
+## 🌟 Yıldız Verin!
+
+Bu projeyi beğendiyseniz GitHub'da ⭐ vermeyi unutmayın!
+
+## 📞 İletişim
+
+- 🐛 **Bug Report:** [Issues](https://github.com/kralmustafa2023-lgtm/quiz-app/issues)
+- 💡 **Feature Request:** [Issues](https://github.com/kralmustafa2023-lgtm/quiz-app/issues)
+- 📧 **Email:** [GitHub Profile](https://github.com/kralmustafa2023-lgtm)
 
 ## 🙏 Teşekkürler
 
-Bu projeyi kullandığınız için teşekkürler! Sorularınız için issue açabilirsiniz.
+Bu projeyi kullandığınız ve katkıda bulunduğunuz için teşekkürler!
+
+### Katkıda Bulunanlar
+
+<!-- Buraya otomatik olarak katkıda bulunanlar eklenecek -->
+
+---
+
+**⭐ Bu projeyi faydalı buldunuz mu? GitHub'da yıldız verin!**
+
+**🔗 Paylaşın:** [Twitter](https://twitter.com/intent/tweet?text=Harika%20bir%20açık%20kaynak%20quiz%20uygulaması!&url=https://github.com/kralmustafa2023-lgtm/quiz-app) | [LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https://github.com/kralmustafa2023-lgtm/quiz-app) | [Facebook](https://www.facebook.com/sharer/sharer.php?u=https://github.com/kralmustafa2023-lgtm/quiz-app)
 
 ---
 
